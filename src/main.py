@@ -71,39 +71,19 @@ def save_parameters(dir_path: str, vocab: dict, hparams: dict, train_cfg: dict, 
 model_path = "data/models/shakespeare/"
 
 
+# Загружаем текст для тренировки нейросети:
+train_text = ""
+with open("data/texts/shakespeare.txt", "r+", encoding="utf-8") as f: train_text = f.read()
+
+
 # Загружаем модель:
 vocab, hparams, train_cfg = load_parameters(model_path)
 
 
-# Загружаем текст для тренировки нейросети:
-train_text = ""
-with open("./data/texts/shakespeare.txt", "r+", encoding="utf-8") as f: train_text = f.read()
-
 # Создаём токенизатор:
-tokenizer = TokenizerSymbol(text=train_text)
+tokenizer = TokenizerSymbol(vocab=vocab)
 # tokenizer = TokenizerWord(text=train_text)  # Токенизатор по словам.
 print(f"Vocab size: {tokenizer.vocab_size} tokens.")
-
-""" Изменяем параметры только если хотим с нуля обучить нейросеть:
-vocab = tokenizer.vocab
-
-hparams = {
-    "n_vocab": tokenizer.vocab_size,
-    "n_ctx": 256,
-    "n_embd": 384,
-    "n_head": 6,
-    "n_layer": 6,
-    "dropout": 0.15
-}
-
-train_cfg = {
-    "batch_size": 64,
-    "learn_iter": 5000,
-    "learn_rate": 3e-4,
-    "eval_inter": 500,
-    "eval_iters": 100
-}
-"""
 
 # Создаём нейросеть:
 gpt = GPTLLM(hparams, "cuda")
@@ -112,25 +92,7 @@ print(f"Device: {gpt.device}")
 # Выводим размер модели:
 print(sum(p.numel() for p in gpt.parameters())/1_000_000, "M parameters.")
 
-"""
-# Подготавливаем текст для тренировки нейросети:
-data = torch.tensor(tokenizer.encode(train_text), dtype=torch.long).to(gpt.device)
-n = int(0.9*len(data))  # Первые 90% - это тренировка, остальные 10% - проверочные.
-train_data = data[:n]
-valid_data = data[n:]
-
-# Тренеруем нейросеть:
-trainer = TrainGPTLLM(train_cfg, gpt, train_data, valid_data)
-trainer.train(model_path, 100, 3.0)
-
-# Сохраняем натренированную модель:
-save_parameters(model_path, vocab, hparams, train_cfg)
-gpt.save(os.path.join(model_path, "model.bin"))
-"""
-
-
 gpt.load(os.path.join(model_path, "model.bin"))  # Загружаем веса.
-
 
 # Функция генерации ответа от ии:
 request = lambda txt, mxt, tmp, tpk: tokenizer.decode(gpt.generate(tokenizer.encode(txt), mxt, tmp, tpk))
