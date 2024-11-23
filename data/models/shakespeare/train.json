@@ -1,0 +1,7 @@
+{
+    "batch_size": 64,
+    "learn_iter": 5000,
+    "learn_rate": 0.0003,
+    "eval_inter": 100,
+    "eval_iters": 10
+}

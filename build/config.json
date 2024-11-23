@@ -1,0 +1,15 @@
+{
+    "program-name": "Python Program Framework",
+
+    "main-file":    "/src/main.py",
+
+    "data-folder":  "/data/",
+
+    "program-icon": "/data/icons/build-icon.ico",
+
+    "console-disabled": false,
+
+    "pyinstaller-flags": [
+        "--onefile", "--log-level WARN"
+    ]
+}
